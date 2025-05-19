@@ -127,6 +127,7 @@ endfunction "}}}
 function! s:MapDict_restore() abort dict "{{{
     for d in self.__map_info
         call s:restore_map_info(d.normal, self.__is_abbr)
+
         call s:restore_map_info(d.buffer, self.__is_abbr)
     endfor
 endfunction "}}}
@@ -200,6 +201,12 @@ function! s:restore_map_info(map_info, is_abbr) abort "{{{
     if empty(a:map_info)
         return
     endif
+    if !has_key(a:map_info, 'rhs')
+        " In Neovim, sometimes rhs is not set - when the mapping is resolved
+        " to a Lua function. Ignore such cases for now.
+        return
+    endif
+
     if a:map_info.lhs ==# '' || a:map_info.rhs ==# ''
         echohl WarningMsg
         echomsg 'invalid arguments: either lhs or rhs is empty'
